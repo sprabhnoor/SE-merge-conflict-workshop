@@ -165,6 +165,134 @@ def create_feature_modulo():
     print("feature-modulo branch created with modulo operation.")
 
 
+def create_main_browser():
+    """Create main-browser branch as exact copy of main."""
+    print("\nCreating main-browser branch...")
+    
+    # Switch to main first
+    run_git_command("git checkout main")
+    
+    # Create and switch to main-browser branch
+    run_git_command("git checkout -b main-browser")
+    
+    # No changes needed, it's an exact copy
+    print("main-browser branch created (exact copy of main).")
+
+
+def create_feature_power_browser():
+    """Create feature-power-browser branch with power operation for browser demo."""
+    print("\nCreating feature-power-browser branch...")
+    
+    # Switch to main-browser first
+    run_git_command("git checkout main-browser")
+    
+    # Create and switch to feature-power-browser branch
+    run_git_command("git checkout -b feature-power-browser")
+    
+    # Read the current calculator.py
+    with open("calculator.py", "r", encoding="utf-8") as f:
+        content = f.read()
+    
+    # Add power function after divide function
+    power_function = '''def power(a, b):
+    """Raise a to the power of b."""
+    return a ** b
+
+
+'''
+    
+    # Insert power function after divide function
+    content = content.replace(
+        "def divide(a, b):\n    \"\"\"Divide a by b.\"\"\"\n    if b == 0:\n        raise ValueError(\"Cannot divide by zero!\")\n    return a / b\n\n",
+        "def divide(a, b):\n    \"\"\"Divide a by b.\"\"\"\n    if b == 0:\n        raise ValueError(\"Cannot divide by zero!\")\n    return a / b\n\n" + power_function
+    )
+    
+    # Add power operator to main function
+    content = content.replace(
+        '    print("Operations: +, -, *, /")',
+        '    print("Operations: +, -, *, /, ^")'
+    )
+    
+    content = content.replace(
+        '        operator = input("Enter operator (+, -, *, /): ")',
+        '        operator = input("Enter operator (+, -, *, /, ^): ")'
+    )
+    
+    # Add power case in the if-elif chain
+    content = content.replace(
+        '        elif operator == "/":\n            result = divide(num1, num2)\n        else:',
+        '        elif operator == "/":\n            result = divide(num1, num2)\n        elif operator == "^":\n            result = power(num1, num2)\n        else:'
+    )
+    
+    # Write the modified content
+    with open("calculator.py", "w", encoding="utf-8") as f:
+        f.write(content)
+    
+    # Commit the changes
+    run_git_command('git add calculator.py')
+    run_git_command('git commit -m "Add power operation (^)"')
+    
+    print("feature-power-browser branch created with power operation.")
+
+
+def create_feature_modulo_browser():
+    """Create feature-modulo-browser branch with modulo operation for browser demo."""
+    print("\nCreating feature-modulo-browser branch...")
+    
+    # Switch to main-browser first
+    run_git_command("git checkout main-browser")
+    
+    # Create and switch to feature-modulo-browser branch
+    run_git_command("git checkout -b feature-modulo-browser")
+    
+    # Read the current calculator.py
+    with open("calculator.py", "r", encoding="utf-8") as f:
+        content = f.read()
+    
+    # Add modulo function after divide function
+    modulo_function = '''def modulo(a, b):
+    """Return the remainder when a is divided by b."""
+    if b == 0:
+        raise ValueError("Cannot divide by zero!")
+    return a % b
+
+
+'''
+    
+    # Insert modulo function after divide function
+    content = content.replace(
+        "def divide(a, b):\n    \"\"\"Divide a by b.\"\"\"\n    if b == 0:\n        raise ValueError(\"Cannot divide by zero!\")\n    return a / b\n\n",
+        "def divide(a, b):\n    \"\"\"Divide a by b.\"\"\"\n    if b == 0:\n        raise ValueError(\"Cannot divide by zero!\")\n    return a / b\n\n" + modulo_function
+    )
+    
+    # Add modulo operator to main function
+    content = content.replace(
+        '    print("Operations: +, -, *, /")',
+        '    print("Operations: +, -, *, /, %")'
+    )
+    
+    content = content.replace(
+        '        operator = input("Enter operator (+, -, *, /): ")',
+        '        operator = input("Enter operator (+, -, *, /, %): ")'
+    )
+    
+    # Add modulo case in the if-elif chain
+    content = content.replace(
+        '        elif operator == "/":\n            result = divide(num1, num2)\n        else:',
+        '        elif operator == "/":\n            result = divide(num1, num2)\n        elif operator == "%":\n            result = modulo(num1, num2)\n        else:'
+    )
+    
+    # Write the modified content
+    with open("calculator.py", "w", encoding="utf-8") as f:
+        f.write(content)
+    
+    # Commit the changes
+    run_git_command('git add calculator.py')
+    run_git_command('git commit -m "Add modulo operation (%)"')
+    
+    print("feature-modulo-browser branch created with modulo operation.")
+
+
 def main():
     """Main setup function."""
     print("=" * 60)
@@ -179,18 +307,29 @@ def main():
     
     # Check if branches already exist
     branches = run_git_command("git branch")
-    if "feature-power" in branches or "feature-modulo" in branches:
+    existing_branches = ["feature-power", "feature-modulo", "main-browser", 
+                        "feature-power-browser", "feature-modulo-browser"]
+    has_existing = any(branch in branches for branch in existing_branches)
+    
+    if has_existing:
         response = input("\nBranches already exist. Delete and recreate? (y/n): ")
         if response.lower() == 'y':
             run_git_command("git checkout main")
-            run_git_command("git branch -D feature-power feature-modulo 2>nul || git branch -D feature-power feature-modulo")
+            # Delete all existing branches
+            for branch in existing_branches:
+                run_git_command(f"git branch -D {branch} 2>nul || git branch -D {branch}")
         else:
             print("Setup cancelled.")
             sys.exit(0)
     
-    # Create feature branches
+    # Create feature branches for command-line demo
     create_feature_power()
     create_feature_modulo()
+    
+    # Create browser-specific branches
+    create_main_browser()
+    create_feature_power_browser()
+    create_feature_modulo_browser()
     
     # Return to main branch
     run_git_command("git checkout main")
@@ -198,11 +337,15 @@ def main():
     print("\n" + "=" * 60)
     print("Setup Complete!")
     print("=" * 60)
-    print("\nNext steps:")
+    print("\nCommand-line demo branches:")
     print("1. git checkout feature-power    # Review the power feature")
     print("2. git checkout main")
     print("3. git merge feature-power       # Merge power (no conflict)")
     print("4. git merge feature-modulo      # Merge modulo (CONFLICT!)")
+    print("\nBrowser demo branches (for GitHub web interface):")
+    print("- main-browser (exact copy of main)")
+    print("- feature-power-browser (power operation)")
+    print("- feature-modulo-browser (modulo operation)")
     print("\nFollow the README.md for detailed instructions.")
 
 
