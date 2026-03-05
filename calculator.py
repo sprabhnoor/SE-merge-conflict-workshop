@@ -26,6 +26,9 @@ def divide(a, b):
     return a / b
 
 
+def power(a, b):
+    """Raise a to the power of b."""
+    return a ** b
 def modulo(a, b):
     """Return the remainder when a is divided by b."""
     if b == 0:
@@ -60,6 +63,10 @@ def main():
             result = modulo(num1, num2)
         elif operator == "^":
             result = power(num1, num2)
+        elif operator == "^":
+            result = power(num1, num2)
+        elif operator == "%":
+            result = modulo(num1, num2)
         else:
             print("Invalid operator!")
             return
